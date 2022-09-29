@@ -1,5 +1,6 @@
 <?php
 
+session_start();
 /**********************************************
  * STARTER CODE
  **********************************************/
@@ -73,30 +74,118 @@ function help()
 
 /**
  * createGameData
- * 
+ * Create a game array in Session
  */
+
+ function createGameData(){
+  $_SESSION['camping'] = [
+    'response' => [],
+    'marshmallows' => 3,
+    'wood' => 0,
+    'tent' => false,
+    'fire' => false
+  ];
+
+  return isset($_SESSION['camping']);
+ }
 
 /**
  * tent
- *
+ * This function will set tent to true
  */
 
+ function tent(){
+  $_SESSION['camping']['tent'] = true;
+
+  return "Tent has been pitched.";
+ }
+
+ 
 /**
  * wood
- * 
+ * will increase the amount of wood by one if the fire is not true
  */
+ function wood(){
+  if(!$_SESSION['camping']['fire']){
+    $_SESSION['camping']['wood'] += 1;
+    
+  return "A piece of wood was found.";
+  } else {
+    return "The fire must be put out.";
+  }
+ }
 
 /**
  * fire
  * 
  */
 
-/**
- * roast
- * 
- */
+ function fire(){
+  if ($_SESSION['camping']['fire']){
+    $_SESSION['camping']['fire'] = false;
+    return "The fire has been put out.";
+  }
+  elseif($_SESSION['camping']['wood'] === 0){
+      return "There is no wood to start the fire.";
+  } 
+  else{
+    $_SESSION['camping']['fire'] = true;
+    $_SESSION['camping']['wood'] -= 1;
+    return "The fire has been started.";
+  }
+ }
 
 /**
- * rest
- * 
+ * roast
+ * roast a marshmallow if fire is true and if there are 
+ * marshmallows available and the amount will decrease by 1.
  */
+
+ function roast(){
+  if($_SESSION['camping']['marshmallows'] > 0){
+    if ($_SESSION['camping']['fire']){
+      $_SESSION['camping']['marshmallows'] -= 1;
+      return "1 marshmallow was roasted, enjoy your marshmallow! ;)";
+    } else {
+      return "The fire is out, it must be going";
+    }
+  } else {
+    return "You are out of marshmallows. :(";
+  }
+}
+/**
+ * rest
+ * Will go to sleep if fire is out and tent is pitched.
+ */
+function rest(){
+  if (!$_SESSION['camping']['fire']){
+    if ($_SESSION['camping']['tent']){
+      return "Good Night!";
+    } else {
+      return "The tent must be pitched to rest.";
+    }
+  } else {
+    return "The fire is still going, put it out to sleep.";
+  }
+}
+/**
+ *  invoke the fire function
+ *  change the status of the fire 
+ *  return a response
+ * 
+ * variable functions
+ * $func = 'help'
+ * $func() ~ help()
+ * 
+ * function exists = tells if a function exists
+ * if(function_exists($func)){
+ * $func()}
+ */
+
+ if (isset ($_POST['command'])){
+  if(function_exists($_POST['command'])){
+    updateResponse($_POST['command']());
+  } else {
+    updateResponse("{$_POST['command']} is not a valid command");
+  }
+ }
